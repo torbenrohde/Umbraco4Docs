@@ -17,6 +17,10 @@ Finder can set content, template, redirect…
 
 ###Example 
 
+    using Umbraco.Core;
+    using Umbraco.Web;
+    using Umbraco.Web.Routing;
+
     public class MyContentFinder : IContentFinder
     {
       public bool TryFindContent(PublishedContentRequest request)
@@ -38,13 +42,16 @@ Finder can set content, template, redirect…
 
 ###Example Default content finder
 
+    using Umbraco.Core;
+    using Umbraco.Web.Routing;
+
     public class ContentFinderByNiceUrl : IContentFinder
     {
       public virtual bool TryFindContent(PublishedContentRequest request)
       {
         string path = request.HasDomain
           // eg. 5678/path/to/node
-          ? request.Domain.RootNodeId.ToString() + …
+          ? request.Domain.RootNodeId.ToString() // + TODO
           // eg. /path/to/node
           : request.Uri.GetAbsolutePathDecoded();
       
@@ -59,6 +66,9 @@ This is an un-breaking change.
 ### Broken example
 
 **TO CHECK: I think this example was included in the presentation to show that umbraco v4 was broken. Using this example you can mimic this behaviour.**
+
+    using Umbraco.Core;
+    using Umbraco.Web.Routing;
 
     public class MyContentFinder : ContentFinderByNiceUrl
     {
@@ -76,9 +86,12 @@ This is an un-breaking change.
 
 this example shows how to add custom content finder to (and how to remove ContentFinderByNiceUrl from) the ContentFinderResolver.
 
+    using Umbraco.Core;
+    using Umbraco.Web.Routing;
+
     public class MyApplication : ApplicationEventHandler
     {
-      protected override void ApplicationStarting(…) 
+      protected override void ApplicationStarting(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext) 
       {
         // Insert my finder before ContentFinderByNiceUrl
         ContentFinderResolver.Current
@@ -92,6 +105,8 @@ this example shows how to add custom content finder to (and how to remove Conten
 #NotFoundHandlers
 In umbraco v4 you could use the NotFoundHandlers.  These are currently (in v6/7) working as an implementation of the IContentFinders:
 
+    using Umbraco.Web.Routing;
+
     public class ContentFinderByNotFoundHandlers : IContentFinder
     {
       public bool TryFindContent(PublishedContentRequest request)
@@ -103,7 +118,6 @@ In umbraco v4 you could use the NotFoundHandlers.  These are currently (in v6/7)
         // umbraco.SearchForProfile becomes ContentFinderByProfile
         // umbraco.SearchForTemplate becomes ContentFinderByNiceUrlAndTemplate
         // umbraco.handle404 becomes ContentFinderByLegacy404
-      …
       }
     } 
 
@@ -112,6 +126,9 @@ This is enabled by default as the last content finder.  It runs every legacy `No
     ContentLastChanceFinderResolver.Current.SetFinder(new My404ContentFinder());
 
 If you want to wrap your legacy NotFoundHandler in a ContentFinder, you can do this like this:
+
+    using Umbraco.Core;
+    using Umbraco.Web.Routing;
 
     public class MyApplication : ApplicationEventHandler
     {
